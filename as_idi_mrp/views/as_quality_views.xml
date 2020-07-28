@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Formulario cliente, campos adicionales -->
+        <record id="as_quility_form" model="ir.ui.view">
+            <field name="name">as.quality.check.form</field>
+            <field name="model">quality.check</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="quality_control.quality_check_view_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='do_fail']" position="after">
+                    <!-- <button name="%(report_certificate_idi)d" type="action" class="btn-primary" string="Imprimir Certificado"  attrs="{'invisible': [('quality_state', '!=', 'pass')]}"/> -->
+                </xpath>
+            </field>
+        </record>
+        
+    </data>
+</odoo>
