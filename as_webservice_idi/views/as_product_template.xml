@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="as_sales_product_template_form_view" model="ir.ui.view">
+            <field name="name">as.product.template.form.inherit</field>
+            <field name="model">product.template</field>
+            <field name="priority">11</field>
+            <field name="inherit_id" ref="product.product_template_form_view" />
+            <field name="arch" type="xml">
+                <field name="categ_id" position="after">
+                    <field name="as_tipo_producto_idi" />
+                    <field name="as_color" />
+                </field>			
+            </field>
+        </record>
+    </data>
+</odoo>
