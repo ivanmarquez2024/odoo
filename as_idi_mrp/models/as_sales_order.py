@@ -15,21 +15,32 @@ class SaleOrder(models.Model):
 
     as_cantidad_mo = fields.Float('MO', compute='_get_lotes_lines')
     as_order_partner = fields.Char(string='Nro orden cliente',required=True,default='P0001')
+    
+    def _prepare_invoice(self):
+        invoice_vals = super(SaleOrder, self)._prepare_invoice()
+        invoice_vals['as_order_partner'] = self.as_order_partner
+        return invoice_vals
 
     def _get_lotes_lines(self):
         resultado = 0
         mo = self.env['mrp.production'].search([('origin', '=', self.name)])
-        mos = self.env['mrp.production'].search([('origin', '=', mo.name)])
-        self.as_cantidad_mo = len(mo)+len(mos)
+        if mo:
+            mos = self.env['mrp.production'].search([('origin', '=', mo.name)])
+            self.as_cantidad_mo = len(mo)+len(mos)
+        else:
+            self.as_cantidad_mo = 0
 
     def open_entries(self):
         ids =[]
+        mos = self.env['mrp.production']
         mo = self.env['mrp.production'].search([('origin', '=', self.name)])
-        mos = self.env['mrp.production'].search([('origin', '=', mo.name)])
-        for order in mo:
-            ids.append(order.id)
-        for order2 in mos:
-            ids.append(order2.id)
+        if mo:
+            mos = self.env['mrp.production'].search([('origin', '=', mo.name)])
+            for order in mo:
+                ids.append(order.id)
+            if mos:
+                for order2 in mos:
+                    ids.append(order2.id)
         return {
             'name': _('Producciones'),
             'view_mode': 'tree',
@@ -44,3 +55,4 @@ class ProductionLot(models.Model):
     _inherit = 'stock.production.lot'
 
     as_lot_supplier = fields.Char(string='Lote Proveedor')
+    as_quality_control = fields.Boolean('Realizado Control de Calidad', default=False)

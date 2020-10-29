@@ -100,6 +100,13 @@ class StockPicking(models.Model):
         self.as_generate_control =True
 
     def button_validate(self):
+        for move in self.move_ids_without_package:
+            for line_move in move.move_line_ids:
+                if not line_move.lot_id.as_quality_control:
+                    raise UserError(_('No puede hacer uso de un lote que no ha completado control de calidad %s')%str(line_move.lot_id.name))
+        for move in self.move_line_ids_without_package:
+            if not move.lot_id.as_quality_control:
+                    raise UserError(_('No puede hacer uso de un lote que no ha completado control de calidad %s')%str(move.lot_id.name))
         res = super(StockPicking, self).button_validate()
         for check_id in self.check_ids:
             for move in self.move_lines:
@@ -107,7 +114,9 @@ class StockPicking(models.Model):
                     if move_lines.lot_id.name == check_id.as_lot_name:
                         check_id.lot_id = move_lines.lot_id
                         move_lines.lot_id.as_lot_supplier = move_lines.as_lot_supplier
+
         for move in self.move_lines:
             for move_lines in move.move_line_nosuggest_ids:
                 move_lines.lot_id.as_lot_supplier = move_lines.as_lot_supplier
+        
         return res

@@ -10,11 +10,16 @@
                 <field name="as_lote_numero" />
                 <field name="as_lote_peso" />
                 <field name="as_tanque" />
+                <field name="as_quality_control" readonly="True"/>
             </xpath>
             <xpath expr="//field[@name='bom_id']" position="after">
                 <field name="as_lot" />
                 <field name="as_cliente_venta" />
                 <field name="as_sale" />
+                <field name="as_date_confirm" />
+                <field name="as_date_confirm_cliente" />
+                <field name="as_motive" />
+                <field name="as_document" />
             </xpath>
              <xpath expr="//notebook" position="inside">
                 <page string="Salidas" name="salidas">
@@ -49,7 +54,7 @@
             <field name="priority" eval="5" />
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='product_uom']" position="after">
-                    <field name="as_lotes" />
+                    <field name="as_lot_id" />
                     
                 </xpath>
             </field>

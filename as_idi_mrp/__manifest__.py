@@ -10,7 +10,7 @@ Customizaciones para IDI
 Custom module for Latproject
     """,
     'category' : "MRP",
-    'depends' : ["mrp","product",'sale','purchase','stock','report_xlsx','uom'],
+    'depends' : ["mrp","product",'sale','purchase','stock','report_xlsx','uom','product_expiry'],
     'website': 'http://www.ahorasoft.com',
     'data' : [
         'security/ir.model.access.csv',
@@ -26,6 +26,8 @@ Custom module for Latproject
         'views/as_report_format.xml',
         'views/as_quality_views.xml',
         'views/as_stock_move_line.xml',
+        'views/as_account_move.xml',
+        'views/as_stock_production_lot.xml',
         'report/as_empaque_report.xml',
         'wizard/as_programa_produccion.xml',
         'wizard/as_ordenes_pendientes.xml',

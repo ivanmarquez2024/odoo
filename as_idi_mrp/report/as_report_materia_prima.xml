@@ -27,10 +27,10 @@
                                                 </div>
 <br/>
 <div class="col-12 text-left">
-                                                <img t-att-src="image_data_uri(picking.get_qrcode(str(move.product_id.default_code)+'-'+move.picking_id.name+'-'+picking.get_format(contador)))"
+                                                <img t-att-src="image_data_uri(picking.get_qrcode(str(move.product_id.default_code)+'-'+move.picking_id.name+'-'+picking.get_format(contador)+'/'+str(move_line.lot_id.id)))"
                                                     style="max-height:3.5cm;max-width:3cm;" /><br/>
                                 <!-- <t t-esc="picking.get_actualiza_default_code(move_line.lot_id,str(move.product_id.default_code)+'-'+move.picking_id.name+'-'+picking.get_format(contador))"/> -->
-                                                    <span style='font-size:12px' t-esc="str(move.product_id.default_code)+'-'+move.picking_id.name+'-'+picking.get_format(contador)" /><br/>
+                                                    <span style='font-size:12px' t-esc="str(move.product_id.default_code)+'-'+move.picking_id.name+'-'+picking.get_format(contador)+'/'+str(move_line.lot_id.id)" /><br/>
                     </div>
                     <br/><br/>
                      <t t-if="picking.partner_id.as_internacional">

@@ -32,8 +32,9 @@ class SplitManufactureOrder(models.TransientModel):
                         copy_mo.write({'as_sale':sale.id})
                     copy_mo.write({'product_qty':split_qty,'origin':mo_id.name})
                     copy_mo.action_confirm()
-                    # change_production_qty = self.env['change.production.qty'].create({'mo_id':copy_mo.id,'product_qty':split_qty})
-                    # change_production_qty.change_prod_qty()
+                    change_production_qty = self.env['change.production.qty'].create({'mo_id':copy_mo.id,'product_qty':split_qty})
+                    change_production_qty.change_prod_qty()
+                    copy_mo.button_unreserve()
                     # copy_mo.action_assign()
             else:
                 if self.split_mo_lot <= 0:
@@ -45,15 +46,17 @@ class SplitManufactureOrder(models.TransientModel):
                     copy_mo.write({'as_sale':sale.id})
                 copy_mo.write({'product_qty':self.split_mo_lot,'origin':mo_id.name})
                 copy_mo.action_confirm()
-                # change_production_qty = self.env['change.production.qty'].create({'mo_id':copy_mo.id,'product_qty':self.split_mo_lot})
-                # change_production_qty.change_prod_qty()
+                change_production_qty = self.env['change.production.qty'].create({'mo_id':copy_mo.id,'product_qty':self.split_mo_lot})
+                change_production_qty.change_prod_qty()
+                copy_mo.button_unreserve()
                 # copy_mo.action_assign()
             if copy_mo:
                 mo_id.write({'product_qty':split_qty,'main_mo_id':copy_mo.id})
             else:
-                mo_id.write({'product_qty':split_qty})
-            # change_production_qty = self.env['change.production.qty'].create({'mo_id':mo_id.id,'product_qty':split_qty})
-            # change_production_qty.change_prod_qty()
+                mo_id.write({'product_qty':split_qty,'main_mo_id':mo_id.id})
+            change_production_qty = self.env['change.production.qty'].create({'mo_id':mo_id.id,'product_qty':split_qty})
+            change_production_qty.change_prod_qty()
+            mo_id.button_unreserve()
             return True
 
     def generate_lot(self,production):

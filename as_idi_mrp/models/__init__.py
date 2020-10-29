@@ -8,3 +8,4 @@ from . import as_product_template
 from . import as_res_partner
 from . import as_quality_views
 from . import as_stock_move_line
+from . import as_account_move

@@ -315,7 +315,7 @@ class as_webservice(http.Controller):
                 }
 
                 if current_picking:
-                    unlink_as_contenedor_id_lines = request.env['as.contenedor'].sudo().search([('picking_id', '=', current_picking.id)]).unlink()
+                    # unlink_as_contenedor_id_lines = request.env['as.contenedor'].sudo().search([('picking_id', '=', current_picking.id)]).unlink()
 
                     current_picking.update(wh_data)
                     res['status'] = 'Update Successfully'
@@ -330,16 +330,18 @@ class as_webservice(http.Controller):
         "id": 123,
         "token": "c70bf37cbc0f4d758cc4651b4f999c6c",
         "quantity_done": 111,
-        "lot_name": "2020-0002"
+        "as_lot_id": 10
     }
+
     '''
     @http.route(["/tiamericas/mrp/consumido/"], auth='public', type="json", methods=['POST'],csrf=False)
     def mrpconsumido(self, bom_id = None, **pdata):
         post = yaml.load(request.httprequest.data)
         el_token = post.get('token') or 'sin_token'
-        lot_name = post.get('lot_name') or ''
+        # lot_name = post.get('lot_name') or ''
+        as_lot_id = post.get('as_lot_id') or ''
         current_user = request.env['res.users'].sudo().search([('as_token', '=', el_token)])
-        lot_id = request.env['stock.production.lot'].sudo().search([('name', '=', lot_name)])
+        # lot_id = request.env['stock.production.lot'].sudo().search([('name', '=', lot_name)])
         if not current_user:
             res_json = json.dumps({'error': ('Token Invalido')})
             callback = post.get('callback')
@@ -353,11 +355,13 @@ class as_webservice(http.Controller):
                 res = {}
                 wh_data = {
                     'quantity_done':  quantity_done,
-                    'as_lotes':  lot_name
+                    'as_lot_id':  as_lot_id,
+                    'as_consumido':  True,
                 }
 
                 if current_move:
                     current_move.update(wh_data)
+                    current_move.get_sentinel_close_mrp(current_move.raw_material_production_id)
                     res['status'] = 'Update Successfully'
                     res['id'] = current_move.id
                     res_json = json.dumps(res)

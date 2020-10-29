@@ -126,13 +126,15 @@ class as_kardex_productos_excel(models.AbstractModel):
             
             for line in all_movimientos_almacen:
                 mrp = self.env['mrp.production'].search([('as_sale', '=', line[0])],order='create_date desc',limit=1)
-                picking = self.env['stock.picking'].search([('origin', '=', line[2])],order='create_date desc',limit=1)
+                picking = self.env['stock.picking'].search([('origin', '=', line[3])],order='create_date desc',limit=1)
+                # picking = self.env['stock.picking'].search([('origin', '=', line[3])],order='create_date desc',limit=1)
                 fecha1 = ''
                 fecha2 = ''
-                if 'x_studio_fecha_de_confirmacin' in mrp:
-                    fecha1 = mrp.x_studio_fecha_de_confirmacin                
-                if 'x_studio_fecha_de_confirmacin_cliente' in mrp:
-                    fecha2 = mrp.x_studio_fecha_de_confirmacin_cliente
+                #se ha comentado porque se ha creado campos en codigo 
+                # if 'x_studio_feckha_de_confirmacin' in mrp:
+                #     fecha1 = mrp.x_studio_fecha_de_confirmacin                
+                # if 'x_studio_fecha_de_confirmacin_cliente' in mrp:
+                #     fecha2 = mrp.x_studio_fecha_de_confirmacin_cliente
                 sheet.write(filas,0, self.get_format_date(line[4]),formato)
                 sheet.write(filas,1, line[5],formato)
                 sheet.write(filas,2, '',formatol)
@@ -141,12 +143,12 @@ class as_kardex_productos_excel(models.AbstractModel):
                 sheet.write(filas,5, line[2] or '',formatof)
                 sheet.write(filas,6, line[3] or '',formato)
                 sheet.write(filas,7, self.get_format_date(picking.scheduled_date) or '',formato)
-                sheet.write(filas,8, self.get_format_date_small(fecha1),formatol)
-                sheet.write(filas,9, self.get_format_date_small(fecha2) or '',formato)
-                sheet.write(filas,10, '',formatol)
+                sheet.write(filas,8, self.get_format_date(mrp.as_date_confirm),formatol)
+                sheet.write(filas,9, self.get_format_date(mrp.date_planned_start) or '',formato)
+                sheet.write(filas,10, self.get_format_date(mrp.as_date_confirm_cliente),formatol)
                 sheet.write(filas,11, self.get_format_date(picking.date_done),formato)
-                sheet.write(filas,12, '',formatol)
-                sheet.write(filas,13, '',formatol)
+                sheet.write(filas,12, self.get_motivo(mrp.as_motive),formatol)
+                sheet.write(filas,13, self.get_document(mrp.as_document),formatol)
                 filas += 1
 
     def get_format_date(self,date):
@@ -157,6 +159,22 @@ class as_kardex_productos_excel(models.AbstractModel):
             year = datetime.strptime(str(date), '%Y-%m-%d %H:%M:%S').strftime('%y')
             fecha= dia+'-'+mes+'-'+year
         return fecha
+
+    def get_motivo(self,docuemnt):
+        valor=''
+        if docuemnt:
+            valor= docuemnt
+        else:
+            valor='N/A'
+        return valor
+
+    def get_document(self,docuemnt):
+        valor=''
+        if docuemnt:
+            valor= 'SI'
+        else:
+            valor='NO'
+        return valor
 
     def get_format_date_small(self,date):
         fecha = ''
