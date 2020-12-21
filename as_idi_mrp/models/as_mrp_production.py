@@ -98,6 +98,8 @@ class as_mrp_workorder(models.Model):
                 if order.as_tanque > order.as_lote_numero:
                     raise Warning("La cantidad de Tanque no puede ser mayor a la cantidad de lote")
                     order.as_tanque = 0
+            # if order.as_lote_peso > 0 and order.as_lote_numero >0:
+            #     order.onchange_quantity(order.id.origin)
 
     @api.onchange('as_lote_peso')
     def onchange_as_peso_lote(self):
@@ -110,9 +112,22 @@ class as_mrp_workorder(models.Model):
                     if order.as_lote_peso < float(macine_min) or order.as_lote_peso > float(macine_max):
                         raise Warning("Cantidad fuera de la capacidad de la maquina")
                         order.as_lote_peso = 0.0                
-                    else:
-                        raise Warning("Debe seleccionar una maquina")
-                        order.as_lote_peso = 0.0
+                if not order.as_machine_id:
+                    raise Warning("Debe seleccionar una maquina")
+                    order.as_lote_peso = 0.0
+            # if order.as_lote_peso > 0 and order.as_lote_numero >0:
+            #     order.onchange_quantity(order.id.origin)
+    
+    def onchange_quantity(self):
+        self.env['change.production.qty'].create({
+            'mo_id': self.id,
+            'product_qty': self.as_lote_numero*self.as_lote_peso
+        }).change_prod_qty()
+        # update_quantity_wizard = self.env['change.production.qty'].create({
+        #     'mo_id': mo_id,
+        #     'product_qty': self.product_qty,
+        # })
+        # update_quantity_wizard.change_prod_qty()
 
 class asMRPmove(models.Model):
     _inherit = 'stock.move'

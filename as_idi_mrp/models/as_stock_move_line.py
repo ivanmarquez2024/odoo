@@ -122,7 +122,7 @@ class StockMove(models.Model):
                                     'picking_id': picking.id,
                                     'point_id': point.id,
                                     'team_id': point.team_id.id,
-                                    'as_lot_name': move_line.lot_name,
+                                    'as_lot_name': move_line.lot_id.name,
                                     'product_id': point.product_id.id,
                                     'company_id': picking.company_id.id,
                                 })
@@ -148,7 +148,7 @@ class StockMove(models.Model):
                                 if not moves.move_line_nosuggest_ids:
                                     raise UserError(_('Hay productos que no poseen lotes, completelos'))
                                 for move_line in moves.move_line_nosuggest_ids:
-                                    self.env['quality.check'].sudo().create({
+                                    quality = self.env['quality.check'].sudo().create({
                                         'picking_id': picking.id,
                                         'point_id': point.id,
                                         'team_id': point.team_id.id,
@@ -156,6 +156,8 @@ class StockMove(models.Model):
                                         'product_id': product.id,
                                         'company_id': picking.company_id.id,
                                     })
+                                    if move_line.lot_id:
+                                        quality.as_lot_name = move_line.lot_name
                                     quality_points_list.add(point_key)
                             else:
                                 self.env['quality.check'].sudo().create({

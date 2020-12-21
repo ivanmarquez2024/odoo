@@ -37,7 +37,8 @@ class as_kardex_productos_excel(models.AbstractModel):
             titulo4 = workbook.add_format({'font_size': 13, 'align': 'center', 'text_wrap': True, 'bottom': True, 'top': True, 'left': True, 'right': True, 'bold':True })
             titulo5 = workbook.add_format({'font_size': 13, 'align': 'left', 'text_wrap': True, 'bold':True })
 
-            number_left = workbook.add_format({'font_size': 11, 'align': 'left', 'num_format': '#,##0.00'})
+            number_left = workbook.add_format({'font_size': 11, 'align': 'right', 'num_format': '#,##0.00'})
+            number_leftR = workbook.add_format({'font_size': 11, 'align': 'right', 'num_format': '#,##0.00','color': 'red'})
             number_right = workbook.add_format({'font_size': 11, 'align': 'right', 'num_format': '#,##0.00'})
             number_right_bold = workbook.add_format({'font_size': 11, 'align': 'right', 'num_format': '#,##0.00', 'bold':True})
             number_right_col = workbook.add_format({'font_size': 11, 'align': 'right', 'num_format': '#,##0.00','bg_color': 'silver'})
@@ -99,7 +100,8 @@ class as_kardex_productos_excel(models.AbstractModel):
             sheet.write(7, 3, 'UDM', titulo2)
             sheet.write(7, 4, 'DUE DATE', titulo2)
             sheet.write(7, 5, 'QTY REQUERED', titulo2)
-            sheet.write(7, 6, 'BALANCE', titulo2)
+            sheet.write(7, 6, 'PRONOSTICO DE DEMANDA INDIRECTA', titulo2)
+            sheet.write(7, 7, 'BALANCE', titulo2)
             filas = 8
             sheet.freeze_panes(8, 0)
             query_movements = ("""
@@ -123,20 +125,35 @@ class as_kardex_productos_excel(models.AbstractModel):
             
             for line in all_movimientos_almacen:
                 value_qty = 0.0
+                value_qty_init = 0.0
                 product = self.env['product.template'].search([('id', '=', line[0])], limit=1)
                 if product.name:
+                    fabricar = False
+                    bom = self.env['mrp.bom'].search([('product_tmpl_id', '=', product.id)], limit=1)
+                    if bom:
+                        fabricar = True
                     msp = self.env['mrp.production.schedule'].search([('id', '=', line[5])], limit=1).get_production_schedule_view_state()
                     for value in msp[0]['forecast_ids']:
                         if str(line[3])== str(value['date_stop']):
-                            value_qty = value['replenish_qty']
+                            if fabricar:
+                                value_qty = value['replenish_qty']
+                                value_qty_init = 0.0
+                            else:
+                                value_qty = 0.0
+                                if 'indirect_demand_qty' in value:
+                                    value_qty_init = value['indirect_demand_qty']
                     if value_qty:
                         qty = float(product.qty_available)-value_qty
                     else:
                         qty = float(product.qty_available)
+                    if value_qty <= 0.0:
+                        qty = float(product.qty_available)-value_qty_init
                     if qty > 0:
                         formato = letter1
+                        formato2 = number_left
                     else:
                         formato = letter1c
+                        formato2 = number_leftR
 
                     fecha_inv =  (datetime.strptime(str(line[3]), '%Y-%m-%d') + relativedelta(days=5)).strftime('%d/%m/%Y')
                     sheet.write(filas,0,product.name,formato)
@@ -144,8 +161,9 @@ class as_kardex_productos_excel(models.AbstractModel):
                     sheet.write(filas,2,product.qty_available or 0,formato)
                     sheet.write(filas,3,product.uom_id.name or '',formato)
                     sheet.write(filas,4,fecha_inv,formato)
-                    sheet.write(filas,5,value_qty or '',formato)
-                    sheet.write(filas,6,qty or 0,formato)
+                    sheet.write(filas,5,value_qty or '',formato2)
+                    sheet.write(filas,6,value_qty_init or 0,formato2)
+                    sheet.write(filas,7,qty or 0,formato2)
                     filas += 1
 
 

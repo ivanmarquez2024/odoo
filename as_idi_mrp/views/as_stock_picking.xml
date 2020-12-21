@@ -23,7 +23,10 @@
                 </page>
             </xpath>
             <xpath expr="//button[@name='button_validate']" position="after">
-                <button name="create_quality_from_picking" type="object" class="btn-primary" string="Generar controles" attrs="{'invisible':[('as_generate_control','=',True)]}" />
+                <button name="create_quality_from_picking" type="object" class="btn-primary" string="Generar controles" attrs="{'invisible':['|',('as_generate_control','=',True)]}"/>
+            </xpath>
+             <xpath expr="//button[@name='check_quality']" position="attributes">
+                <attribute name="attrs">{'invisible': [('quality_check_todo', '=', False)]}</attribute>
             </xpath>
         </field>
     </record>

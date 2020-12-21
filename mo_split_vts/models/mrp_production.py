@@ -7,7 +7,7 @@ class ManufacturingOrder(models.Model):
     
     def open_slip_wizard(self):
         context = dict(self._context or {})
-        context['default_split_mo_lot']=self.as_lote_numero 
+        context['default_split_mo_lot']=self.as_lote_peso 
         context['active_id']=self.id 
         context['active_model']= 'mrp.production'
         return {
