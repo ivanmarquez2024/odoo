@@ -96,7 +96,11 @@ class StockPicking(models.Model):
 
     def create_quality_from_picking(self):
         for move in self.move_ids_without_package:
-            move._create_quality_checks_from_picking()
+            if self.state == 'done':
+                move._create_quality_checks_from_picking()
+            else:
+                move._create_quality_checks_from_picking_after()
+
         self.as_generate_control =True
         for check_id in self.check_ids:
             for move in self.move_lines:
