@@ -152,12 +152,12 @@ class StockMove(models.Model):
                                         'picking_id': picking.id,
                                         'point_id': point.id,
                                         'team_id': point.team_id.id,
-                                        'as_lot_name': move_line.lot_name,
+                                        'as_lot_name':  move_line.lot_id.name,
                                         'product_id': product.id,
                                         'company_id': picking.company_id.id,
                                     })
                                     if move_line.lot_id:
-                                        quality.as_lot_name = move_line.lot_name
+                                        quality.as_lot_name = move_line.lot_id.name
                                     quality_points_list.add(point_key)
                             else:
                                 self.env['quality.check'].sudo().create({
