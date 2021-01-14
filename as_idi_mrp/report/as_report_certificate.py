@@ -42,13 +42,14 @@ class as_kardex_productos_excel(models.AbstractModel):
         sheet.set_paper(1)
         sheet.set_landscape()
         
-        titulo1 = workbook.add_format({'font_size': 16, 'align': 'center', 'text_wrap': True, 'bold':True })
+        titulo1 = workbook.add_format({'font_size': 16, 'align': 'center', 'valign': 'vcenter', 'text_wrap': True, 'bold':True })
         titulo2 = workbook.add_format({'font_size': 14, 'align': 'center', 'text_wrap': True, 'bottom': True, 'top': True, 'bold':True })
         titulo3 = workbook.add_format({'font_size': 12, 'align': 'left', 'text_wrap': True, 'bottom': True, 'top': True })
         titulo3_number = workbook.add_format({'font_size': 14, 'align': 'right', 'text_wrap': True, 'bottom': True, 'top': True, 'bold':True, 'num_format': '#,##0.00' })
         titulo4 = workbook.add_format({'font_size': 12, 'align': 'center', 'text_wrap': True, 'bottom': True, 'top': True, 'left': True, 'right': True})
 
         number_left = workbook.add_format({'font_size': 12, 'align': 'left', 'num_format': '#,##0.00'})
+        number_perosonalizado = workbook.add_format({'font_size': 12, 'align': 'center', 'num_format': 0})
         number_right = workbook.add_format({'font_size': 12, 'align': 'right', 'num_format': '#,##0.00'})
         number_right_bold = workbook.add_format({'font_size': 12, 'align': 'right', 'num_format': '#,##0.00', 'bold':True})
         number_right_col = workbook.add_format({'font_size': 12, 'align': 'right', 'num_format': '#,##0.00','bg_color': 'silver'})
@@ -56,7 +57,7 @@ class as_kardex_productos_excel(models.AbstractModel):
         number_right_col.set_locked(False)
 
         letter12 = workbook.add_format({'font_size': 12, 'align': 'center', 'text_wrap': True, 'bold':True,'bottom': True, 'top': True, 'left': True, 'right': True})
-        letter11 = workbook.add_format({'font_size': 12, 'align': 'center', 'text_wrap': True,'bottom': True, 'top': True, 'left': True, 'right': True})
+        letter11 = workbook.add_format({'font_size': 12, 'align': 'center', 'valign': 'vcenter','text_wrap': True,'bottom': True, 'top': True, 'left': True, 'right': True})
         letter1 = workbook.add_format({'font_size': 12, 'align': 'left', 'text_wrap': True})
         letter1d = workbook.add_format({'font_size': 10, 'align': 'center', 'text_wrap': True})
         letter2 = workbook.add_format({'font_size': 12, 'align': 'left', 'bold':False})
@@ -78,14 +79,18 @@ class as_kardex_productos_excel(models.AbstractModel):
         sheet.set_column('I:I',10, letter1)
         sheet.set_column('J:J',20, letter1)
         sheet.set_column('K:K',10, letter1)
+
+        sheet.set_row(9,35)
+        sheet.set_row(10,15)
+
         code_format = product_id.as_format_type_id.as_code
         if not generate or not product_id.as_format_type_id:
             sheet.merge_range(2,5,3,15,'No se puedo generar el reporte los productos son distintos o producto no posee formato establecido',titulo1) 
         elif generate:
             if code_format <= 2:
-                sheet.merge_range(2,5,3,8,'BMC Certificate Of Analysis',titulo1) 
+                sheet.merge_range(1,8,2,10,'BMC Certificate Of Analysis',titulo1) 
             else:
-                sheet.merge_range(2,5,3,8,'SMC Certificate Of Analysis',titulo1) 
+                sheet.merge_range(1,8,2,10,'SMC Certificate Of Analysis',titulo1) 
             # fecha_inicial = datetime.strptime(data['form']['start_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
             # fecha_final = datetime.strptime(data['form']['end_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
             # # Titulos, subtitulos, filtros y campos del reporte.
@@ -96,14 +101,14 @@ class as_kardex_productos_excel(models.AbstractModel):
             customer = ''
             if mo_id:
                 customer=mo_id.as_sale.partner_id.name
-            sheet.write(3, 1, 'Material: ',letter1) 
-            sheet.write(3, 2, product_id.name,letter2)         
-            sheet.write(4, 1, 'Color: ',letter1) 
-            sheet.write(4, 2, product_id.as_color,letter2) 
-            sheet.write(5, 1, 'Customer: ',letter1) 
-            sheet.write(5, 2, customer,letter2)         
-            sheet.write(6, 1, 'Commercial Guarantee: ',letter1) 
-            sheet.write(6, 2, product_id.product_tmpl_id.x_studio_guarantee,letter2) 
+            sheet.write(4, 1, 'Material: ',letter1) 
+            sheet.write(4, 2, product_id.name,letter2)         
+            sheet.write(5, 1, 'Color: ',letter1) 
+            sheet.write(5, 2, product_id.as_color,letter2) 
+            sheet.write(6, 1, 'Customer: ',letter1) 
+            sheet.write(6, 2, customer,letter2)         
+            sheet.write(7, 1, 'Commercial Guarantee: ',letter1) 
+            sheet.write(7, 2, product_id.product_tmpl_id.x_studio_guarantee,letter2) 
 
             # sheet.merge_range('A2:D2', 'Dirección: '+self.env.user.company_id.street, letter1)
             # sheet.merge_range('A3:D3', 'Telefono: '+self.env.user.company_id.phone, letter1)
@@ -114,7 +119,7 @@ class as_kardex_productos_excel(models.AbstractModel):
             #sheet.merge_range('A5:I5', 'REPORTE DE TICKETS SOPORTE', titulo1)
             #sheet.set_row(7, 40)
             #sheet.merge_range('A6:I6', 'DEL '+fecha_inicial+' AL '+fecha_final, letter11)
-            filas = 7
+            filas = 8
             filas += 1
             point_array =[]
             point_all = self.env['quality.point'].search([('product_tmpl_id', '=', product_id.product_tmpl_id.id)])
@@ -127,30 +132,30 @@ class as_kardex_productos_excel(models.AbstractModel):
             point = self.env['quality.point'].search([('id', 'in', point_array)])
             quality_check = self.env['quality.check'].search([('product_id', '=', product_id.id)])
             if code_format >= 3:
-                sheet.merge_range('B9:E9', 'Propierty', letter12)
-                sheet.merge_range('F9:G9', 'Unit', letter12)
-                sheet.merge_range('H9:I9', 'Specification', letter12)
-                sheet.write(8,9, 'Reference Method', letter12)
+                sheet.merge_range('B10:E10', 'Propierty', letter12)
+                sheet.merge_range('F10:I10', 'Unit', letter12)
+                sheet.merge_range('J10:M10', 'Specification', letter12)
+                sheet.merge_range('N10:R10', 'Reference Method', letter12)
                 filas += 1
-                cont=9
+                cont=10
                 for item in point_all:
                     cont +=1
                     sheet.merge_range('B'+str(cont)+':E'+str(cont), str(item.title), letter11)
-                    sheet.merge_range('F'+str(cont)+':G'+str(cont), str(item.norm_unit), letter11)
-                    sheet.merge_range('H'+str(cont)+':I'+str(cont), str(item.tolerance_min)+'-'+str(item.tolerance_max), letter11)
-                    sheet.merge_range('J'+str(cont), letter11)
-                    sheet.write(cont-1,9, item.x_studio_mtodo, letter11)
+                    sheet.merge_range('F'+str(cont)+':I'+str(cont), str(item.norm_unit), letter11)
+                    sheet.merge_range('J'+str(cont)+':M'+str(cont), str(item.tolerance_min)+'-'+str(item.tolerance_max), letter11)
+                    sheet.merge_range('N'+str(cont)+':R'+str(cont),item.x_studio_mtodo, letter11)
+                    #sheet.write(cont-1,15, item.x_studio_mtodo, letter11)
                     filas += 1
             if int(code_format) >= 3:
                 filas = cont
                 filas += 1
-                sheet.write(filas, 1, 'Batch',letter12) #cliente/proveedor
-                sheet.write(filas, 2, 'Manufacturing Date',letter12) #cliente/proveedor
-                sheet.write(filas, 3, '# Box',letter12) #cliente/proveedor
-                cont =4
+                sheet.write(filas, 1, '#Batch',letter12) #cliente/proveedor
+                sheet.merge_range(filas, 2,filas,3, 'Manufacturing Date',letter12) #cliente/proveedor
+                sheet.merge_range(filas, 4,filas,5, '#Box',letter12) #cliente/proveedor
+                cont =6
                 for intem in point:
-                    sheet.write(filas, cont, intem.title+'('+intem.norm_unit+') ',letter12) #cliente/proveedor   
-                    cont+=1
+                    sheet.merge_range(filas, cont,filas,cont+1, intem.title+'('+intem.norm_unit+') ',letter12) #cliente/proveedor   
+                    cont+=2
                 filas += 1
                 for check in lines:
                     quality_check = self.env['quality.check'].search([('lot_id', '=', check.as_lot.id)])
@@ -159,20 +164,20 @@ class as_kardex_productos_excel(models.AbstractModel):
                     year = datetime.strptime(str(check.date_planned_start), '%Y-%m-%d %H:%M:%S').strftime('%Y')
                     fecha = str(dia)+'/'+str(self.get_mes(mes))+'/'+year
                     sheet.write(filas, 1,check.as_lot.name,letter11) 
-                    sheet.write(filas, 2,fecha,letter11) 
+                    sheet.merge_range(filas, 2,filas, 3,fecha,letter11) 
                     caja=''
                     if quality_check:
                         if 'x_studio__box' in quality_check[0]:
                             caja = quality_check[0].x_studio__box
-                    sheet.write(filas, 3,caja,letter11) 
-                    cont =4
+                    sheet.merge_range(filas, 4,filas,5,caja,letter11) 
+                    cont =6
                     for intem in point:
                         value = 0.0
                         for item in quality_check:
                             if intem.id == item.point_id.id:
                                 value = item.measure
-                        sheet.write(filas, cont, float(value),letter11) #cliente/proveedor   
-                        cont+=1
+                        sheet.merge_range(filas, cont,filas, cont+1, float(value),letter11) #cliente/proveedor   
+                        cont+=2
                     filas += 1
             else:
                 sheet.merge_range(filas,1,filas+2,1,'Batch',letter11)
@@ -200,25 +205,25 @@ class as_kardex_productos_excel(models.AbstractModel):
                     sheet.write(filas, 2,fecha,letter11) 
                     cont =3
                     for intem in point:
-                        value = 0.0
+                        value = 0
                         for item in quality_check:
                             if intem.id == item.point_id.id:
                                 value = item.measure
-                        sheet.write(filas, cont, str(intem.tolerance_min),letter11) #cliente/proveedor   
+                        sheet.write(filas, cont, int(intem.tolerance_min),letter11) #cliente/proveedor   
                         cont+=1                
-                        sheet.write(filas, cont, str(intem.tolerance_max),letter11) #cliente/proveedor   
+                        sheet.write(filas, cont, int(intem.tolerance_max),letter11) #cliente/proveedor   
                         cont+=1                
                         sheet.write(filas, cont, float(value),letter11) #cliente/proveedor   
                         cont+=1
                     filas += 1
             filas += 2
-            sheet.merge_range(filas,1,filas+6,11,product_id.as_format_type_id.as_slogan,letter1) #cliente/proveedor 
+            sheet.merge_range(filas,1,filas+6,20,product_id.as_format_type_id.as_slogan,letter1) #cliente/proveedor 
             filas += 8
-            sheet.merge_range(filas,4,filas+5,6,product_id.as_format_type_id.as_sfooter,letter1d) 
+            sheet.merge_range(filas,8,filas+5,10,product_id.as_format_type_id.as_sfooter,letter1d) 
             url = image_data_uri(product_id.as_format_type_id.image)
             image_data = BytesIO(urlopen(url).read())
-            sheet.insert_image('J'+str(filas+2), url, {'image_data': image_data,'x_offset': 0.7, 'y_offset': 0.5}) 
-            sheet.merge_range(filas+4,9,filas+4,10,product_id.as_format_type_id.as_code_iso,letter1) 
+            sheet.insert_image('T'+str(filas+2), url, {'image_data': image_data,'x_offset': 0.7, 'y_offset': 0.5}) 
+            sheet.merge_range(filas+4,19,filas+4,20,product_id.as_format_type_id.as_code_iso,letter1) 
 
 
     def get_mes(self,mes):

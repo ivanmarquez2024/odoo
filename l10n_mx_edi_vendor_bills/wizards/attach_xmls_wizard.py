@@ -273,7 +273,7 @@ class AttachXmlsWizard(models.TransientModel):
             inv = exist_reference
             inv_id = inv.id
             exist_reference = False
-            inv.l10n_mx_edi_update_sat_status()
+            # inv.l10n_mx_edi_update_sat_status()
         xml_status = inv.l10n_mx_edi_sat_status
         inv_vat_receiver = (
             self.env.user.company_id.vat or '').upper()
@@ -363,7 +363,7 @@ class AttachXmlsWizard(models.TransientModel):
             return {'wrongfiles': wrongfiles, 'invoices': invoices}
 
         inv.l10n_mx_edi_cfdi = xml_str
-        inv.generate_xml_attachment()
+        # inv.generate_xml_attachment()
         inv.ref = '%s|%s' % (xml_serie_folio, xml_uuid.split('-')[0])
         invoices.update({key: {'invoice_id': inv.id}})
         if not float_is_zero(float(inv.amount_total) - xml_amount,
@@ -678,8 +678,8 @@ class AttachXmlsWizard(models.TransientModel):
             related_invoices.write({
                 'refund_invoice_ids': [(4, invoice_id.id, 0)]
             })
-        invoice_id.l10n_mx_edi_update_sat_status()
-        invoice_id.action_post()
+        # invoice_id.l10n_mx_edi_update_sat_status()
+        # invoice_id.action_post()
         return {'key': True, 'invoice_id': invoice_id.id}
 
     @api.model

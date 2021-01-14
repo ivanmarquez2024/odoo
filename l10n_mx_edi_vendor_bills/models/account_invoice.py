@@ -6,6 +6,7 @@ from codecs import BOM_UTF8
 
 from odoo import _, api, models,fields
 
+from lxml import etree
 BOM_UTF8U = BOM_UTF8.decode('UTF-8')
 CFDI_SAT_QR_STATE = {
     'No Encontrado': 'not_found',
@@ -27,19 +28,30 @@ TYPE2REFUND = {
     'out_refund': 'out_invoice',        # Customer Credit Note
     'in_refund': 'in_invoice',          # Vendor Credit Note
 }
-
+import logging
+_logger = logging.getLogger(__name__)
 MAGIC_COLUMNS = ('id', 'create_uid', 'create_date', 'write_uid', 'write_date')
-
+CFDI_XSLT_CADENA = 'l10n_mx_edi/data/%s/cadenaoriginal.xslt'
 
 class AccountInvoice(models.Model):
     _inherit = 'account.move'
 
     move_name = fields.Char(string='Journal Entry Name', readonly=True,default=False, copy=False)
 
+    def _l10n_mx_edi_get_xml(self):
+        for inv in self:
+            node_sello = 'Sello'
+            certificate_ids = inv.company_id.l10n_mx_edi_certificate_ids
+            certificate_id = certificate_ids.sudo().get_valid_certificate()
+            tree = inv.l10n_mx_edi_get_xml_etree(inv.l10n_mx_edi_cfdi)
+            cadena = self.l10n_mx_edi_generate_cadena(CFDI_XSLT_CADENA % '3.3', tree)
+            tree.attrib[node_sello] = certificate_id.sudo().get_encrypted_cadena(cadena)
+            return {'cfdi': etree.tostring(tree, pretty_print=True, xml_declaration=True, encoding='UTF-8')}
+
     def generate_xml_attachment(self):
         version = self.l10n_mx_edi_get_pac_version()
         for inv in self:
-            cfdi_values = inv._l10n_mx_edi_create_cfdi()
+            cfdi_values = inv._l10n_mx_edi_get_xml()
             error = cfdi_values.pop('error', None)
             cfdi = cfdi_values.pop('cfdi', None)
             if error:
@@ -61,12 +73,10 @@ class AccountInvoice(models.Model):
                 'datas': base64.encodestring(cfdi),
                 'description': 'Mexican invoice',
                 })
-            inv.message_post(
-                body=_('CFDI document generated (may be not signed)'),
-                attachment_ids=[attachment_id.id],
-                subtype='account.mt_invoice_validated')
-            inv._l10n_mx_edi_sign()
-
+            inv.l10n_mx_edi_sat_status ='valid'
+            inv._compute_cfdi_values()
+            _logger.debug('\n\n\n Entro a Folio'+inv.l10n_mx_edi_cfdi_uuid)
+            
     def create_adjustment_line(self, xml_amount):
         """If the invoice has difference with the total in the CFDI is
         generated a new line with that adjustment if is found the account to

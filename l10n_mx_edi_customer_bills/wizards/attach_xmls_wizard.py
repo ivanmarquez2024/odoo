@@ -175,7 +175,7 @@ class AttachXmlsWizard(models.TransientModel):
             inv = exist_reference
             inv_id = inv.id
             exist_reference = False
-            inv.l10n_mx_edi_update_sat_status()
+            # inv.l10n_mx_edi_update_sat_status()
         elif (tag_folio and exist_reference and
                 exist_reference.l10n_mx_edi_cfdi_uuid and
                 exist_reference.l10n_mx_edi_cfdi_uuid != xml_uuid):
@@ -194,6 +194,7 @@ class AttachXmlsWizard(models.TransientModel):
             domain += [('partner_id', 'child_of', exist_supplier.id)]
         uuid_dupli = xml_uuid in inv_obj.search(domain).mapped(
             'l10n_mx_edi_cfdi_uuid')
+        
         mxns = ['mxp', 'mxn', 'pesos', 'peso mexicano', 'pesos mexicanos']
         xml_currency = 'MXN' if xml_currency.lower(
         ) in mxns else xml_currency
@@ -258,9 +259,11 @@ class AttachXmlsWizard(models.TransientModel):
         inv.generate_xml_attachment()
         if tag_folio:
             inv.invoice_origin = '%s|%s' % (xml_folio, xml_uuid.split('-')[0])
-        inv.post()
-        inv.l10n_mx_edi_update_sat_status()
+        inv.write({'state':'posted'})
+        # inv.post()
+        # inv.l10n_mx_edi_update_sat_status()
         invoices.update({key: {'invoice_id': inv.id}})
+        # inv._compute_cfdi_values()
         return {'wrongfiles': wrongfiles,
                 'invoices': invoices}
 
@@ -499,13 +502,15 @@ class AttachXmlsWizard(models.TransientModel):
                 percent = discount_amount * 100 / sub_total_amount
                 invoice_id.invoice_line_ids.write({'discount': percent})
         invoice_id.l10n_mx_edi_cfdi = xml_str.decode('UTF-8')
-        invoice_id.generate_xml_attachment()
         self._assign_cfdi_related(xml, invoice_id)
         total_xml = float(xml.get('Total', xml.get('total')))
         if invoice_id.amount_total != total_xml:
             invoice_id.create_adjustment_line(total_xml)
-        invoice_id.post()
-        invoice_id.l10n_mx_edi_update_sat_status()
+        name = invoice_id.journal_id.sequence_id.next_by_id()
+        invoice_id.write({'name':name,'state':'posted'})
+        # invoice_id.action_post()
+        invoice_id.generate_xml_attachment()
+        # invoice_id.l10n_mx_edi_update_sat_status()
         return {'key': True, 'invoice_id': invoice_id.id}
 
     @api.model

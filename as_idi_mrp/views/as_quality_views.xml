@@ -13,6 +13,16 @@
                 </xpath>
             </field>
         </record>
-        
+        <!-- Formulario cliente, campos adicionales -->
+        <record id="as_quality_check_view_form_small" model="ir.ui.view">
+            <field name="name">as.quality.check.form</field>
+            <field name="model">quality.check</field>
+            <field name="inherit_id" ref="quality_control.quality_check_view_form_small" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='note']" position="after">
+                  Lote: <field name="lot_id" readonly="True" />
+                </xpath>
+            </field>
+        </record>
     </data>
 </odoo>
