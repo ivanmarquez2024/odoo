@@ -1,7 +1,7 @@
 {
     'name': 'Import Customer Invoices from XML',
     'summary': 'Create multiple Invoices from XML in other systems',
-    'version': '12.0.1.0.0',
+    'version': '1.0.2',
     'category': 'Localization/Mexico',
     'author': 'Vauxoo',
     'website': 'https://www.vauxoo.com',

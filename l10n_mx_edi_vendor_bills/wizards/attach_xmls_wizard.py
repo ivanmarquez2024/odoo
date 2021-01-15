@@ -586,7 +586,7 @@ class AttachXmlsWizard(models.TransientModel):
                 'name': name,
                 'quantity': float(quantity),
                 'product_uom_id': uom_id.id,
-                'tax_line_id': [(6, 0, line_taxes)],
+                'tax_ids': [(6, 0, line_taxes)],
                 'price_unit': float(price),
                 'discount': discount,
             }))
@@ -679,7 +679,8 @@ class AttachXmlsWizard(models.TransientModel):
                 'refund_invoice_ids': [(4, invoice_id.id, 0)]
             })
         # invoice_id.l10n_mx_edi_update_sat_status()
-        # invoice_id.action_post()
+        if invoice_id.type == 'in_invoice':
+            invoice_id.action_post()
         return {'key': True, 'invoice_id': invoice_id.id}
 
     @api.model

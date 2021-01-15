@@ -4,7 +4,7 @@
 {
     'name': 'Import Supplier Invoice from XML',
     'summary': 'Create multiple Invoices from XML',
-    'version': '12.0.1.0.1',
+    'version': '1.0.2',
     'category': 'Localization/Mexico',
     'author': 'Vauxoo,Jarsa',
     'website': 'https://www.vauxoo.com',
