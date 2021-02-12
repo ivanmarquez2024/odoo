@@ -22,27 +22,39 @@ class MultiReportPartnerLedger(models.AbstractModel):
         else:
             domain +=[('account_id.internal_type', 'in', ['receivable', 'payable'])]
         
-        if data['date_from']:
-            domain +=[('move_id.invoice_date', '>=', data['date_from'])]
-        elif data['date_to']:
-            domain +=[('move_id.invoice_date', '<=', data['date_to'])]
+        if data['date_from'] and not data['date_to']:
+            domain +=[('date', '>=', data['date_from'])]
+        elif data['date_to'] and not data['date_from']:
+            domain +=[('date', '<=', data['date_to'])]
+        elif data['date_from'] and data['date_to']:
+            domain +=[('date', '>=', data['date_from']),('date', '<=', data['date_to'])]
         else:
-            if data['date_from'] and data['date_to']:
-                domain +=[('move_id.invoice_date', '>=', data['date_from']),('move_id.invoice_date', '<=', data['date_to'])]
+            domain +=[]
         invoice_ids = self.env['account.move.line'].search(domain)
         full_account = []
         for invoice in invoice_ids:
+            company_id = self.env.user.company_id
             displayed_name = str(invoice.move_id.name or '') + '-' + str(invoice.move_id.invoice_payment_ref or '')
+            debit_amt_convert = invoice.debit
+            credit_amt_convert = invoice.credit
+            amount_currency_amt_convert = invoice.amount_currency
+            balance_amt_convert = invoice.balance
+            if company_id.currency_id != invoice.currency_id:
+                debit_amt_convert = company_id.currency_id._convert(invoice.debit, invoice.currency_id, company_id, invoice.move_id.date)
+                credit_amt_convert = company_id.currency_id._convert(invoice.credit, invoice.currency_id, company_id, invoice.move_id.date)
+                amount_currency_amt_convert = invoice.currency_id._convert(invoice.amount_currency, company_id.currency_id, company_id, invoice.move_id.date)
+                balance_amt_convert = company_id.currency_id._convert(invoice.balance, invoice.currency_id, company_id, invoice.move_id.date)
             vals = {
-                'debit' : invoice.debit,
-                'credit' : invoice.credit,
-                'progress': invoice.balance,
+                'debit' : debit_amt_convert,
+                'credit' : credit_amt_convert,
+                'amount_currency' : amount_currency_amt_convert,
+                'progress': balance_amt_convert,
                 'date': invoice.move_id.invoice_date,
                 'date_due': invoice.move_id.invoice_date_due,
                 'code' : invoice.journal_id.code,
                 'a_code' : invoice.account_id.code,
                 'displayed_name': displayed_name,
-                'currency_id': invoice.currency_id.symbol,
+                'currency_id': invoice.currency_id.symbol or company_id.currency_id.symbol,
                 'invoice_id': invoice.move_id.id
             }
             full_account.append(vals)

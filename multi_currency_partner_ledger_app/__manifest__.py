@@ -2,7 +2,7 @@
 {
     "name": 'Multi Currency Partner Ledger Report',
     "author": "Edge Technologies",
-    "version": '13.0.1.1',
+    "version": '13.0.1.2',
     "live_test_url": "https://youtu.be/28VZl9SkP1s",
     "images":['static/description/main_screenshot.png'],
     "summary": "Multi currency ledger report multiple currency ledger report partner ledger currency report with multi currency customer ledger partner ledger multi currency report partner ledger report with multi-currency partner ledger based on currency ledger report",
