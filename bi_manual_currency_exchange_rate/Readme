@@ -1,0 +1,9 @@
+
+
+=> 05/11/19 ==> 13.0.0.1 ==> Index improved according to a mobile compatible format and change related and demanded apps link.
+
+13.0.0.2 ==> fixed issue of inventory valuation
+
+Version 13.0.0.3 : (12/02/20)
+		- Solve singleton error in stock.valuation.layer .
+		- Solve pricing issue in purchase order.
