@@ -34,7 +34,9 @@ class StockProduction(models.Model):
 
     ####Funcion para quitar elementos de texto enriquecido en reportes
     def get_pobs(self,text):
-        return BeautifulSoup(text,"html.parser").text
-
+        textstr = ''
+        if text:
+            textstr = BeautifulSoup(text,"html.parser").text
+        return textstr
 
 

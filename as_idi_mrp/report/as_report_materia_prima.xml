@@ -26,22 +26,25 @@
                                 <br/>
                                                 </div>
 <br/>
+<br/>
+<br/>
+<br/>
 <div class="col-12 text-left">
                                                 <img t-att-src="image_data_uri(picking.get_qrcode(str(move.product_id.default_code)+'-'+move.picking_id.name+'-'+picking.get_format(contador)+'/'+str(move_line.lot_id.id)))"
                                                     style="max-height:3.5cm;max-width:3cm;" /><br/>
                                 <!-- <t t-esc="picking.get_actualiza_default_code(move_line.lot_id,str(move.product_id.default_code)+'-'+move.picking_id.name+'-'+picking.get_format(contador))"/> -->
                                                     <span style='font-size:12px' t-esc="str(move.product_id.default_code)+'-'+move.picking_id.name+'-'+picking.get_format(contador)+'/'+str(move_line.lot_id.id)" /><br/>
                     </div>
-                    <br/><br/>
+                    <br/>
                      <t t-if="picking.partner_id.as_internacional">
                      <div class="col-12 text-right">
                                  <h2 style="font-size:50px">IMMEX</h2>
                             </div>
                                 </t>
                                 <t t-if="not picking.partner_id.as_internacional">
-<br/><br/>
+
                                  </t>
-                                <br/>
+                       
                                 <t t-set="contador" t-value="contador+1" />
                         <br/>__________________________________________________  <br/>
                         <div class="row mt0 mb0 ">

@@ -20,14 +20,15 @@
                                     USO EXCLUSIVO DE MATERIAL:   
                                 </div> 
                                 <br/> <br/>
+                    <br/><br/>
+                    <br/>
                                  <div class="col-12 text-left">
                                     <img t-att-src="image_data_uri(lote.get_qrcode(str(move.product_id.default_code)+'-'+move.name+'-'+str(move.id)))" style="max-height:3.5cm;max-width:3cm;" /><br/>
                                     <br/>
                                     <span style="font-size:12px" t-esc="str(lote.product_id.default_code)+' - ' + 'WH' + '/' +'IN'+'/'+move.name+' - '+str(move.id)"/>
                                 </div>
                             
-                    <br/><br/>
-                    <br/><br/>
+                    <br/>
 
                         <div style="text-align:center">       
                             <br/>__________________________________________________  <br/>

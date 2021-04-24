@@ -12,3 +12,5 @@ from . import as_account_move
 from . import as_stock_production_lote
 from . import as_backorder_confirmation
 from . import as_res_config
+from . import as_decimales
+from . import as_box

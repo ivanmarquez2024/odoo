@@ -8,7 +8,7 @@
             <xpath expr="//field[@name='origin']" position="after">
                 <field name="as_generate_control" invisible="1" />
             </xpath>
-             <xpath expr="//field[@name='group_id']" position="after">
+             <xpath expr="//field[@name='origin']" position="after">
                 <field name="as_stock_extra" />
             </xpath>
             <xpath expr="//page[@name='extra']" position="after">
