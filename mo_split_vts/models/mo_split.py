@@ -30,7 +30,7 @@ class SplitManufactureOrder(models.TransientModel):
                     self.generate_lot(copy_mo.id)
                     if sale:
                         copy_mo.write({'as_sale':sale.id})
-                    copy_mo.write({'product_qty':split_qty,'origin':mo_id.name})
+                    copy_mo.write({'product_qty':split_qty,'origin':mo_id.name,'origin':mo_id.name,'date_deadline':mo_id.date_planned_start,'date_planned_start':mo_id.date_planned_start,'date_planned_finished':mo_id.date_planned_start})
                     copy_mo.action_confirm()
                     change_production_qty = self.env['change.production.qty'].create({'mo_id':copy_mo.id,'product_qty':split_qty})
                     change_production_qty.change_prod_qty()
@@ -44,7 +44,7 @@ class SplitManufactureOrder(models.TransientModel):
                 self.generate_lot(copy_mo.id)
                 if sale:
                     copy_mo.write({'as_sale':sale.id})
-                copy_mo.write({'product_qty':self.split_mo_lot,'origin':mo_id.name})
+                copy_mo.write({'product_qty':self.split_mo_lot,'date_deadline':mo_id.date_planned_start,'date_planned_start':mo_id.date_planned_start,'date_planned_finished':mo_id.date_planned_start})
                 copy_mo.action_confirm()
                 change_production_qty = self.env['change.production.qty'].create({'mo_id':copy_mo.id,'product_qty':self.split_mo_lot})
                 change_production_qty.change_prod_qty()

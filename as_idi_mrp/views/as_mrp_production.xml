@@ -18,6 +18,8 @@
                 <field name="as_tanque" />
              
                 <field name="as_quality_control" readonly="True"/>
+                <field name="as_quality_cien" readonly="True"/>
+                <field name="as_usage"/>
             </xpath>
             <xpath expr="//field[@name='bom_id']" position="after">
                 <field name="as_lot" />

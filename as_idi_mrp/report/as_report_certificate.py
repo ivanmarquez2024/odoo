@@ -84,6 +84,10 @@ class as_kardex_productos_excel(models.AbstractModel):
         sheet.set_row(10,15)
 
         code_format = product_id.as_format_type_id.as_code
+        if code_format in (1,2):
+            columnas = product_id.as_format_type_id.as_cant_column
+        else:
+            columnas = product_id.as_format_type_id.as_cant_column
         if not generate or not product_id.as_format_type_id:
             sheet.merge_range(2,5,3,15,'No se puedo generar el reporte los productos son distintos o producto no posee formato establecido',titulo1) 
         elif generate:
@@ -122,14 +126,14 @@ class as_kardex_productos_excel(models.AbstractModel):
             filas = 8
             filas += 1
             point_array =[]
-            point_all = self.env['quality.point'].search([('product_tmpl_id', '=', product_id.product_tmpl_id.id)])
+            point_all = self.env['quality.point'].search([('product_tmpl_id', '=', product_id.product_tmpl_id.id)],order='as_secuencia asc',limit=columnas)
             quality_check_all = self.env['quality.check'].search([('lot_id', '=', tuple(lotes))])
             #check_one= quality_check_all[0]
             for quelity in quality_check_all:
                 for point in point_all:
                     if quelity.point_id.id == point.id:
                         point_array.append(point.id)
-            point = self.env['quality.point'].search([('id', 'in', point_array)])
+            point = self.env['quality.point'].search([('id', 'in', point_array)],order='as_secuencia asc',limit=columnas)
             quality_check = self.env['quality.check'].search([('product_id', '=', product_id.id)])
             if code_format >= 3:
                 sheet.merge_range('B10:E10', 'Propierty', letter12)
@@ -169,6 +173,8 @@ class as_kardex_productos_excel(models.AbstractModel):
                     if quality_check:
                         if 'x_studio__box' in quality_check[0]:
                             caja = quality_check[0].x_studio__box
+                            if caja == False:
+                                caja = 'N/A'
                     sheet.merge_range(filas, 4,filas,5,caja,letter11) 
                     cont =6
                     for intem in point:
@@ -209,21 +215,23 @@ class as_kardex_productos_excel(models.AbstractModel):
                         for item in quality_check:
                             if intem.id == item.point_id.id:
                                 value = item.measure
-                        sheet.write(filas, cont, int(intem.tolerance_min),letter11) #cliente/proveedor   
+                        sheet.write(filas, cont, float(intem.tolerance_min),letter11) #cliente/proveedor   
                         cont+=1                
-                        sheet.write(filas, cont, int(intem.tolerance_max),letter11) #cliente/proveedor   
+                        sheet.write(filas, cont, float(intem.tolerance_max),letter11) #cliente/proveedor   
                         cont+=1                
                         sheet.write(filas, cont, float(value),letter11) #cliente/proveedor   
                         cont+=1
                     filas += 1
             filas += 2
-            sheet.merge_range(filas,1,filas+6,20,product_id.as_format_type_id.as_slogan,letter1) #cliente/proveedor 
+            sheet.merge_range(filas,1,filas+4,17,product_id.as_format_type_id.as_slogan,letter1) #cliente/proveedor 
             filas += 8
-            sheet.merge_range(filas,8,filas+5,10,product_id.as_format_type_id.as_sfooter,letter1d) 
+            ###Definir donde se rendea el pie slogan con los datos de la empresa
+            sheet.merge_range(filas,10,filas+3,8,product_id.as_format_type_id.as_sfooter,letter1d) 
+            ###FIN
             url = image_data_uri(product_id.as_format_type_id.image)
             image_data = BytesIO(urlopen(url).read())
-            sheet.insert_image('T'+str(filas+2), url, {'image_data': image_data,'x_offset': 0.7, 'y_offset': 0.5}) 
-            sheet.merge_range(filas+4,19,filas+4,20,product_id.as_format_type_id.as_code_iso,letter1) 
+            sheet.insert_image('P'+str(filas), url, {'image_data': image_data,'x_offset': 0.7, 'y_offset': 0.5}) 
+            sheet.merge_range(filas+4,19,filas+4,15,product_id.as_format_type_id.as_code_iso,letter1) 
 
 
     def get_mes(self,mes):

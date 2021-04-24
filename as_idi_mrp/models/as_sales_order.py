@@ -56,3 +56,4 @@ class ProductionLot(models.Model):
 
     as_lot_supplier = fields.Char(string='Lote Proveedor')
     as_quality_control = fields.Boolean('Realizado Control de Calidad', default=False)
+    as_quality_cien = fields.Boolean('Aprobado 100%', default=False)

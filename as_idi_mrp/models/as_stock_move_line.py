@@ -17,6 +17,7 @@ class StockMoveLine(models.Model):
     _inherit = "stock.move.line"
 
     as_lot_supplier = fields.Char(string='Lote Proveedor')
+    as_mo_id = fields.Many2one('mrp.production', string='MO usadas')
 
     def write(self, values):
         res = super(StockMoveLine, self).write(values)
@@ -251,3 +252,8 @@ class QualityCheck(models.Model):
     _inherit = "quality.check"
 
     as_lot_name = fields.Char(string='Lote Name')
+
+class QualityPoint(models.Model):
+    _inherit = "quality.point"
+    
+    as_secuencia = fields.Integer(string='Secuencia')

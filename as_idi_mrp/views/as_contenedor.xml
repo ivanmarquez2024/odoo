@@ -8,6 +8,7 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name" />
+                    <field name="as_entregado" />
                     <field name="as_pesob_kg" />
                     <field name="as_peson_kg" />
                     <field name="as_pesob_lb" />
@@ -29,6 +30,7 @@
                     <sheet>
                         <group col="4">
                             <field name="name" />
+                            <field name="as_entregado" />
                             <field name="as_pesob_kg" />
                             <field name="as_peson_kg" />
                             <field name="as_pesob_lb" />

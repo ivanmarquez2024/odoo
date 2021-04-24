@@ -25,3 +25,4 @@ class Productformat(models.Model):
     as_code_iso_lot = fields.Char(string='Codigo ISO lote')
     image = fields.Binary(attachment=True)
     as_sfooter = fields.Text(string='Footer')
+    as_cant_column = fields.Integer(string = 'Numero de columnas')

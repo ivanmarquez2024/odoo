@@ -32,14 +32,29 @@ class as_mrp_workorder(models.Model):
         self._costs_generate()
         return self.write({'date_finished': fields.Datetime.now()})
 
+    @api.depends('check_ids','check_ids.quality_state')
     def _get_status_control(self):
         for order in self:
             order.as_quality_control=False
             order.as_lot.as_quality_control=False
+            order.as_quality_cien=False
+            order.as_lot.as_quality_cien=False
             if any([(x.quality_state != 'none') for x in order.check_ids]):
                 order.as_quality_control=True
                 order.as_lot.as_quality_control=True
-    
+            if self.get_lot_aprobado(order.check_ids,'pass') == len(order.check_ids):
+                order.as_quality_cien=True
+                order.as_lot.as_quality_cien=True
+
+    def get_lot_aprobado(self,dict_line,state):
+        valores = [(x.quality_state == state) for x in dict_line]
+        cont = 0
+        for line in valores:
+            if line == True:
+                cont+=1
+        return cont
+
+
     as_machine_id = fields.Many2one(comodel_name='as.machine', string='Maquina')
     as_lote_numero = fields.Integer(string='Cantidad Lote')
     as_lote_peso = fields.Float(string='Peso x Lote')
@@ -53,7 +68,9 @@ class as_mrp_workorder(models.Model):
     as_date_confirm_cliente = fields.Datetime('Fecha de Confirmación Cliente')
     as_motive = fields.Char('Motivo')
     as_document = fields.Boolean('Documento')
-    as_quality_control = fields.Boolean('Realizado Control de Calidad', compute='_get_status_control')
+    as_quality_control = fields.Boolean('Realizado Control de Calidad', compute='_get_status_control',store=True)
+    as_quality_cien = fields.Boolean('Controles 100% Aprobados', compute='_get_status_control',store=True)
+    as_usage = fields.Boolean('Usado')
 
 
     def check_all_state_mo(self):

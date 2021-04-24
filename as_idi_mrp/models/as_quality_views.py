@@ -17,7 +17,6 @@ class ProductTemplate(models.Model):
     #     res = res and res[0] or {}
     #     data.update({'form': res})
     #     return self.env.ref('as_idi_mrp.report_certificate_idi').report_action(self, data=data)
-
     def printer_report(self):
         context = self._context
         datas = {'ids': context.get('active_ids', [])}
@@ -27,4 +26,14 @@ class ProductTemplate(models.Model):
             if isinstance(datas['form'][field], tuple):
                 datas['form'][field] = datas['form'][field][0]
         return self.env.ref('as_idi_mrp.report_certificate_idi').report_action(self, data=datas)
+
+    def _get_lote_proveedor(self):
+        for line in self:
+            move_line = self.env['stock.move.line'].search([('lot_id', '=', line.lot_id.id)],limit=1)
+            if move_line:
+                line.as_lot_supplier = move_line.as_lot_supplier
+            else:
+                line.as_lot_supplier = ''
+
         
+    as_lot_supplier = fields.Char('Lote Proveedor', compute='_get_lote_proveedor')

@@ -6,13 +6,17 @@
         <field name="model">stock.picking</field>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='origin']" position="after">
-                <field name="as_generate_control" invisible="1"/>
+                <field name="as_generate_control" invisible="1" />
+            </xpath>
+             <xpath expr="//field[@name='group_id']" position="after">
+                <field name="as_stock_extra" />
             </xpath>
             <xpath expr="//page[@name='extra']" position="after">
                 <page string="Contenedor" name="contenedor">
                     <field name="as_contenedor_id">
                         <tree string="Contenedor" editable="bottom" create="true" delete="false">
                             <field name="name" />
+                            <field name="as_entregado" />
                             <field name="as_lote" widget="many2many_tags" />
                             <field name="as_pesob_kg" />
                             <field name="as_peson_kg" />
@@ -23,9 +27,14 @@
                 </page>
             </xpath>
             <xpath expr="//button[@name='button_validate']" position="after">
-                <button name="create_quality_from_picking" type="object" class="btn-primary" string="Generar controles" attrs="{'invisible':['|',('as_generate_control','=',True)]}"/>
+                <button name="create_quality_from_picking" type="object" class="btn-primary" string="Generar controles"
+                    attrs="{'invisible':['|',('as_generate_control','=',True)]}" />
             </xpath>
-             <xpath expr="//button[@name='check_quality']" position="attributes">
+            <xpath expr="//button[@name='action_toggle_is_locked']" position="after">
+                <button name="as_get_lote_done" type="object" class="btn-primary" string="Comprobar Lotes"/>
+                <!-- <button name="as_generate_remanente" type="object" class="btn-primary" string="Prueba Remanente"/> -->
+            </xpath>
+            <xpath expr="//button[@name='check_quality']" position="attributes">
                 <attribute name="attrs">{'invisible': [('quality_check_todo', '=', False)]}</attribute>
             </xpath>
         </field>

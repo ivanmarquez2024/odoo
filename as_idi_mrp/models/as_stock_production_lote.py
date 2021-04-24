@@ -32,6 +32,9 @@ class StockProduction(models.Model):
         except:
             raise UserError(_('No se puedo generar el codigo QR'))     
 
+    ####Funcion para quitar elementos de texto enriquecido en reportes
+    def get_pobs(self,text):
+        return BeautifulSoup(text,"html.parser").text
 
 
 

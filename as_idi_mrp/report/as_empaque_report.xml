@@ -381,6 +381,7 @@
                                 </thead>
                                 <thead style='border:1px solid grey;'>
                                     <div t-foreach="o.as_contenedor_id" t-as="d" width="100%">
+                                     <t t-if="d.as_entregado">
                                         <tr>
 
                                             <td class='letra2'>
@@ -405,6 +406,7 @@
                                                 <t t-esc="'{:.2f}'.format(d.as_peson_lb)" />
                                             </td>
                                         </tr>
+                                        </t>
                                     </div>
                                 </thead>
                                 <thead style='border:1px solid grey;'>

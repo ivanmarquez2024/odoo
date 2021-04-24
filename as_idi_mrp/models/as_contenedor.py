@@ -14,6 +14,7 @@ class Contenedor(models.Model):
     _name = "as.contenedor"
 
     name = fields.Char(string='Nombre Contenedor')
+    as_entregado = fields.Boolean(string='Entregar Contenedor',default=False)
     as_pesob_kg = fields.Float(string='Peso Bruto kg')
     as_peson_kg = fields.Float(string='Peso Neto kg')    
     as_pesob_lb = fields.Float(string='Peso Bruto lb')
@@ -31,3 +32,12 @@ class Contenedor(models.Model):
         udm_kg = self.env['uom.uom'].search([('name', '=', 'kg')])
         self.as_peson_lb = udm_kg._compute_quantity(self.as_peson_kg, self.env.ref('uom.product_uom_lb'))
         
+
+    @api.onchange('as_entregado')
+    def as_informacion_lote(self):
+        for contender in self:
+            for lot in contender.as_lote:
+                if not lot.as_quality_control:
+                    raise UserError(_('El lote %s no posee Controles de Calidad realizados')%str(lot.name))
+                if contender.as_entregado:
+                    raise UserError(_('No puede tickear como entregado contenedor'))

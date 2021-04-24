@@ -21,6 +21,7 @@ class StockPicking(models.Model):
 
     as_contenedor_id = fields.One2many('as.contenedor', 'picking_id', string='Rules', help='The list of barcode rules')
     as_generate_control= fields.Boolean(string='Bandera de controles',default=False) 
+    as_stock_extra = fields.Many2one('stock.picking', string='Movimiento adicional')
 
     def get_actualiza_default_code(self,lot_id,name):
         lot_id.update({'ref':name,'lot_name':name})
@@ -79,10 +80,11 @@ class StockPicking(models.Model):
         as_pesob_lb = 0.0
         as_peson_lb = 0.0
         for pick in self.as_contenedor_id:
-            as_pesob_kg += pick.as_pesob_kg
-            as_peson_kg += pick.as_peson_kg
-            as_pesob_lb += pick.as_pesob_lb
-            as_peson_lb += pick.as_peson_lb
+            if pick.as_entregado:
+                as_pesob_kg += pick.as_pesob_kg
+                as_peson_kg += pick.as_peson_kg
+                as_pesob_lb += pick.as_pesob_lb
+                as_peson_lb += pick.as_peson_lb
         vals = {
             'as_pesob_kg': as_pesob_kg,
             'as_peson_kg': as_peson_kg,
@@ -93,6 +95,56 @@ class StockPicking(models.Model):
     # def get_name_picking(self,move_id):
     #     name=''
     #     move_line_id = self.env['stock.move.line'].search([('id', '=', move_id)])
+
+    def as_get_lote_done(self):
+        for move in self.move_line_ids_without_package:
+            move.product_uom_qty = 0
+            move.qty_done = 0
+        self.move_line_ids_without_package.unlink()
+        venta = self.env['sale.order'].search([('name', '=', self.origin)])
+        move_lines = []
+        presentes = []
+        for move in self.move_ids_without_package:
+            cantidad = move.product_uom_qty
+            mrps = self.env['mrp.production'].search([('as_sale', '=', venta.id),('state', '=', 'done'),('product_id', '=', move.product_id.id),('as_quality_cien', '=', True),('as_usage', '=', False)])
+            if mrps:
+                for mrp in mrps:
+                    if mrp.as_lot.product_qty <= cantidad:
+                        cantidad -= mrp.as_lot.product_qty
+                        presentes.append(mrp.as_lot.id)
+                        vals = {
+                            'product_id': mrp.product_id.id,
+                            'product_uom_id': move.product_uom.id,
+                            'location_id': move.location_id.id,
+                            'location_dest_id': move.location_dest_id.id,
+                            'lot_id': mrp.as_lot.id,
+                            'picking_id': self.id,
+                            'move_id': move.id,
+                            'as_mo_id': mrp.id,
+                            'qty_done': mrp.as_lot.product_qty,
+                            # 'product_uom_qty': mrp.as_lot.product_qty,
+                        }
+                        move_lines.append(vals)
+            mrps_usados = self.env['mrp.production'].search([('as_sale', '=', venta.id),('state', '=', 'done'),('product_id', '=', move.product_id.id),('as_quality_cien', '=', True),('as_usage', '=', True)])
+            if mrps_usados:
+                for mrp_usados in mrps_usados:
+                    presentes.append(mrp_usados.as_lot.id)
+        for contender in self.as_contenedor_id:
+            total = 0
+            for lot in presentes:
+                if lot in contender.as_lote.ids:
+                    total += 1
+            if total == len(contender.as_lote.ids):
+                contender.as_entregado = True
+            else:
+                contender.as_entregado = False
+
+
+        if move_lines != []:
+            self.env['stock.move.line'].sudo().create(move_lines)
+        #separando contenedores
+
+
 
     def create_quality_from_picking(self):
         for move in self.move_ids_without_package:
@@ -134,5 +186,75 @@ class StockPicking(models.Model):
         for move in self.move_lines:
             for move_lines in move.move_line_nosuggest_ids:
                 move_lines.lot_id.as_lot_supplier = move_lines.as_lot_supplier
-        
+        for contender in self.as_contenedor_id:
+            if contender.as_entregado:
+                for lot in contender.as_lote:
+                    if not lot.as_quality_control:
+                        raise UserError(_('El lote %s no posee Controles de Calidad realizados')%str(lot.name))
+        if self.picking_type_id.code =='outgoing':
+            #marcar como usado las lineas detalladas 
+            for line in self.move_line_ids_without_package:
+                line.as_mo_id.as_usage = True
+            total_ope = 0.0
+            total_ini = 0.0
+            picking_anterior = self
+            for line in picking_anterior.move_line_ids_without_package:
+                total_ope+= line.qty_done
+            for line_move in picking_anterior.move_ids_without_package:
+                total_ini+= line_move.product_uom_qty
+            if total_ini == total_ope:
+                picking_anterior.as_generate_remanente()
         return res
+
+    def as_generate_remanente(self):
+        for contenedor in self.as_contenedor_id:
+            qty = float(self.env['ir.config_parameter'].sudo().get_param('res_config_settings.as_factor')) or 0.001
+            if not contenedor.as_entregado and not self.as_stock_extra:
+                picking = self.env['stock.picking'].create({
+                    'partner_id': self.partner_id.id,
+                    'picking_type_id': self.picking_type_id.id,
+                    'location_id': self.location_id.id,
+                    'location_dest_id': self.location_dest_id.id,
+                    'origin': self.origin,
+                })
+                for line in self.move_ids_without_package:
+                    move_id = self.env['stock.move'].create({
+                        'name':line.product_id.name,
+                        'location_id': line.location_id.id,
+                        'location_dest_id': line.location_dest_id.id,
+                        'product_id':line.product_id.id,
+                        'product_uom':line.product_id.uom_id.id,
+                        'product_uom_qty': qty,
+                        'quantity_done': qty,
+                        'picking_id': picking.id,
+                    })
+                    # self.env['stock.move.line'].create({
+                    #     'location_id': line.location_id.id,
+                    #     'location_dest_id': line.location_dest_id.id,
+                    #     'product_id':line.product_id.id,
+                    #     'product_uom_id':line.product_id.uom_id.id,
+                    #     'move_id': move_id.id,
+                    #     'lot_id': contenedor.as_lote[0].id,
+                    #     'qty_done': qty,
+                    #     'picking_id': picking.id,
+                    # })
+                picking.action_confirm()
+                for line in picking.move_line_ids_without_package:
+                    if len(contenedor.as_lote) > 0:
+                        line.lot_id = contenedor.as_lote[0].id
+
+
+
+                # Process the delivery of the outgoing shipment
+                # self.env['stock.immediate.transfer'].create({'pick_ids': [(4, picking.id)]}).process()
+                self.as_stock_extra =picking
+                vals = {
+                    "name": contenedor.name ,
+                    "as_pesob_kg": contenedor.as_pesob_kg,
+                    "picking_id": picking.id,
+                    "as_peson_kg": contenedor.as_peson_kg,
+                    "as_pesob_lb": contenedor.as_pesob_lb,
+                    "as_peson_lb": contenedor.as_peson_lb,
+                    "as_lote": contenedor.as_lote.ids,
+                }
+                contenido = self.env['as.contenedor'].create(vals)

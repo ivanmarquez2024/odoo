@@ -9,6 +9,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='ref']" position="after">
                     <field name="as_quality_control" readonly="True" />
+                    <field name="as_quality_cien" readonly="True" />
                 </xpath>
             </field>
         </record>

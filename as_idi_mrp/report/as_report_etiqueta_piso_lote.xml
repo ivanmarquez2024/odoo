@@ -15,7 +15,7 @@
                                     MATERIAL: <span t-esc="move.product_id.name" /><br/>
                                     LOTE: <span t-esc="move.name" /><br/> 
                                     FECHA: <t t-if="lote.create_date"><span t-esc="(datetime.datetime.strptime(str(lote.create_date), '%Y-%m-%d %H:%M:%S.%f') - datetime.timedelta(hours=5)).strftime('%d / %m / %Y')" /><br/></t>
-                                    OBS: <t t-if="move.note"></t><br/>
+                                    OBS: <t t-esc="(lote.get_pobs(move.note))"></t><br/>
                                     INSPECTOR: <span t-esc="lote.env.user.partner_id.name" /><br/>
                                     USO EXCLUSIVO DE MATERIAL:   
                                 </div> 
