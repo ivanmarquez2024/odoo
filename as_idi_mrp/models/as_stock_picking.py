@@ -130,22 +130,21 @@ class StockPicking(models.Model):
             mrps = self.env['mrp.production'].search([('as_sale', '=', venta.id),('state', '=', 'done'),('product_id', '=', move.product_id.id),('as_quality_cien', '=', True),('as_usage', '=', False)])
             if mrps:
                 for mrp in mrps:
-                    if mrp.as_lot.product_qty <= cantidad:
-                        cantidad -= mrp.as_lot.product_qty
-                        presentes.append(mrp.as_lot.id)
-                        vals = {
-                            'product_id': mrp.product_id.id,
-                            'product_uom_id': move.product_uom.id,
-                            'location_id': move.location_id.id,
-                            'location_dest_id': move.location_dest_id.id,
-                            'lot_id': mrp.as_lot.id,
-                            'picking_id': self.id,
-                            'move_id': move.id,
-                            'as_mo_id': mrp.id,
-                            'qty_done': mrp.as_lot.product_qty,
-                            # 'product_uom_qty': mrp.as_lot.product_qty,
-                        }
-                        move_lines.append(vals)
+                    cantidad -= mrp.product_qty
+                    presentes.append(mrp.as_lot.id)
+                    vals = {
+                        'product_id': mrp.product_id.id,
+                        'product_uom_id': move.product_uom.id,
+                        'location_id': move.location_id.id,
+                        'location_dest_id': move.location_dest_id.id,
+                        'lot_id': mrp.as_lot.id,
+                        'picking_id': self.id,
+                        'move_id': move.id,
+                        'as_mo_id': mrp.id,
+                        'qty_done': mrp.product_qty,
+                        # 'product_uom_qty': mrp.as_lot.product_qty,
+                    }
+                    move_lines.append(vals)
             mrps_usados = self.env['mrp.production'].search([('as_sale', '=', venta.id),('state', '=', 'done'),('product_id', '=', move.product_id.id),('as_quality_cien', '=', True),('as_usage', '=', True)])
             if mrps_usados:
                 for mrp_usados in mrps_usados:
