@@ -55,10 +55,10 @@ class AccountMove(models.Model):
                                  digits=(16,3),
                                  compute='_compute_base_residual',
                                  store=True)
-            
+
 
     def auto_reconcile_entries(self, src_mv, dest_mv):
-        ''' 
+        '''
             Make Auto Reconciliation for Journal Entries.
         '''
         if src_mv and dest_mv:
@@ -242,8 +242,9 @@ class AccountMove(models.Model):
         """
         today = date.today().replace(day=1) - timedelta(days=1)
         for inv in self.search([('invoice_payment_state', '=', 'not_paid'),
-                                ('invoice_date', '<=', today)]):
-
+                                ('invoice_date', '<=', today),
+                                ('type', 'not in', ['entry', 'out_receipt', 'in_receipt']),
+                                ]):
             # compute the number of invoices to consider for the Forex Entry.
             if inv.company_id.currency_id == inv.currency_id:
                 continue
