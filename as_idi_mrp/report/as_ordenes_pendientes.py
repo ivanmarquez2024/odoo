@@ -30,6 +30,9 @@ class as_kardex_productos_excel(models.AbstractModel):
     
             #Definiciones generales del archivo, formatos, titulos, hojas de trabajo
             sheet = workbook.add_worksheet('Detalle de Movimientos')
+            #Pie de pagina
+            footer1 = '&RSOP-ATEN-FOR-08\nRev. 4\n17/12/2021'
+            sheet.set_footer(footer1)
             titulo1 = workbook.add_format({'font_size': 16, 'align': 'center', 'text_wrap': True, 'bold':True })
             titulo2 = workbook.add_format({'font_size': 13, 'align': 'center', 'text_wrap': True, 'bottom': True, 'top': True, 'bold':True })
             titulo2l = workbook.add_format({'font_size': 13, 'align': 'center', 'text_wrap': True, 'bottom': True, 'top': True, 'bold':True,'bg_color': 'silver'})
