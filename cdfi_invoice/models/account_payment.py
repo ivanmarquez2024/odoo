@@ -109,7 +109,7 @@ class AccountPayment(models.Model):
     @api.depends('name')
     def _get_number_folio(self):
         for record in self:
-            if record.number:
+            if record.name:
                 record.number_folio = record.name.replace('CUST.IN','').replace('/','')
 
     @api.model
@@ -161,7 +161,7 @@ class AccountPayment(models.Model):
           tax_grouped_ret = {}
           mxn_currency = self.env["res.currency"].search([('name', '=', 'MXN')], limit=1)
 
-          if payment.invoice_ids:
+          if payment.invoice_ids or payment.reconciled_invoices_count > 0:
             invoice_vals_list = []
             pay_rec_lines = payment.move_line_ids.filtered(lambda line: line.account_internal_type in ('receivable', 'payable'))
 
