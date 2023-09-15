@@ -10,6 +10,8 @@ class AccountReport(models.AbstractModel):
 
     def _get_columns_name(self, options):
         cols = super()._get_columns_name(options)
+        if not self.env.context.get('xlsx_mode'):
+            return cols
         cols.insert(0, {'name': _('Account'), 'style': 'width:10%'})
         cols.append({
             'name': _('Account level')
@@ -71,7 +73,7 @@ class AccountReport(models.AbstractModel):
             else:
                 sheet.write(0, x, cell_content, super_col_style)
                 x += 1
-        for row in self.get_header(options):
+        for row in self.with_context(xlsx_mode=True).get_header(options):
             x = 0
             for column in row:
                 colspan = column.get('colspan', 1)
