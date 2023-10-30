@@ -276,8 +276,8 @@ class GenerarXmlHirarchyWizard(models.TransientModel):
                             "debit": total_amount[account_id]["debit"],
                             "balance": total_amount[account_id]["balance"],
                             "ending_balance": total_amount[account_id]["ending_balance"],
-                            "cuenta_sat": account.group_id.cuenta_sat or '',
-                            "cuenta_tipo": account.group_id.cuenta_tipo or '',
+                            "cuenta_sat": account.cuenta_sat or '',
+                            "cuenta_tipo": account.cuenta_tipo or '',
                             "subctade": account.group_id.code_prefix or '',
                             "type": "account_type",
                         }
@@ -489,10 +489,10 @@ class GenerarXmlHirarchyWizard(models.TransientModel):
             for account_id in total_amount:
                 if len(account_id['code']) > 2:
                    account_lines.append({'NumCta': account_id['code'],
-                                      'SaldoIni': account_id['initial_balance'],
+                                      'SaldoIni': round(account_id['initial_balance'],2),
                                       'Debe': account_id['debit'],
                                       'Haber': account_id['credit'],
-                                      'SaldoFin': account_id['ending_balance'],
+                                      'SaldoFin': round(account_id['ending_balance'],2),
                                       })
             request_params.update({'Balanza':{
                          'RFC': company.vat,
