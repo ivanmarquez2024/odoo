@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
-#                 @author IT admin
+#                 @author IT Admin
 #
 ##############################################################################
 
 {
     'name': 'Complemento Comercio Exterior',
-    'version': '13.04',
+    'version': '13.05',
     'description': ''' Agrega nodos para agregar el complemento de comercio exterior
     ''',
     'category': 'Accounting',
