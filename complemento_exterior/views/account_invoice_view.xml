@@ -13,10 +13,10 @@
                  <page name="datos_cce" string="Comercio Exterior" attrs="{'invisible': [('cce_habilitar_cee','=',False), ('cce_habilitar_exterior','=',False)]}">
                   <group cols="4" >
                     <group>
-                         <field name="cce_tipooperacion"/>
+                         <!--<field name="cce_tipooperacion"/>-->
                          <field name="cce_clavedepedimento"/>
                          <field name="cce_incoterm"/>
-                         <field name="cce_subdivision"/>
+                         <!--<field name="cce_subdivision"/>-->
                          <field name="cce_tipocambio"/>
                     </group>
                     <group>

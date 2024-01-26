@@ -8,7 +8,7 @@ from lxml import etree
 
 from odoo import fields, models, api,_ 
 import odoo.addons.decimal_precision as dp
-from odoo.exceptions import UserError, Warning
+from odoo.exceptions import UserError
 from odoo.tools import float_is_zero, float_compare
 from reportlab.graphics.barcode import createBarcodeDrawing, getCodes
 from reportlab.lib.units import mm
@@ -62,7 +62,7 @@ class AccountMove(models.Model):
 
     cce_habilitar_cee = fields.Boolean(string='Comercio exterior')
     cce_habilitar_exterior = fields.Boolean(string='Comercio exterior 2')
-    cce_tipooperacion = fields.Selection([('2', '2')], string='Tipo de operación')
+#    cce_tipooperacion = fields.Selection([('2', '2')], string='Tipo de operación')
     cce_clavedepedimento = fields.Selection([('A1', 'A1')], string='Clave de pedimento')
     cce_certificadoorigen = fields.Selection([('0', '0 - No Funge como certificado de origen'), ('1', '1- Funge como certificado origen')], string='Certificado origen')
     cce_numcertificadoorigen = fields.Char(string=_('Folio del certificado de origen'))
@@ -117,13 +117,13 @@ class AccountMove(models.Model):
 
         if self.cce_habilitar_cee or self.cce_habilitar_exterior:
                 res.update({
-                     'comercioexterior11': {
-                            'TipoOperacion': self.cce_tipooperacion,
+                     'comercioexterior20': {
+                         #   'TipoOperacion': self.cce_tipooperacion,
                             'ClaveDePedimento': self.cce_clavedepedimento,
                             'CertificadoOrigen': self.cce_certificadoorigen,
                             'NumeroExportador': self.cce_numeroexportadorconfiable,
                             'Incoterm': self.cce_incoterm,
-                            'Subdivision': self.cce_subdivision,
+                            #'Subdivision': self.cce_subdivision,
                             'TipoCambioUSD': self.cce_tipocambio,
                             'MotivoTraslado': self.cce_motivo_traslado,
                             'TotalUSD': self.amount_total, 
@@ -160,7 +160,7 @@ class AccountMove(models.Model):
                      },
                 })
                 if self.cee_propietario_id:
-                     res['comercioexterior11'].update({'Propietario': {
+                     res['comercioexterior20'].update({'Propietario': {
                                            'NumRegIdTrib': self.cee_propietario_id.registro_tributario,
                                            'ResidenciaFiscal': self.cee_propietario_id.residencia_fiscal,
                                            },
@@ -243,8 +243,8 @@ class AccountMove(models.Model):
                       total_usd += round(merc.valordolares,2)
 
                 if mercancia_cce:
-                    res['comercioexterior11'].update({'Mercancias': mercancia_cce})
-                res['comercioexterior11'].update({'TotalUSD': self.set_decimals(total_usd, 2)})
+                    res['comercioexterior20'].update({'Mercancias': mercancia_cce})
+                res['comercioexterior20'].update({'TotalUSD': self.set_decimals(total_usd, 2)})
 
                 if self.currency_id.name == 'USD':
                     res['factura'].update({'tipocambio': self.cce_tipocambio})
