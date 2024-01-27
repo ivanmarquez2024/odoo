@@ -13,44 +13,30 @@
 						<table class="borderless" cellspacing="0"  style="width:100%;border:none;border-collapse:separate;border-spacing: 2px;">
 							<tr>
 								<td>
-									<strong>Tipo de operación</strong>
-								</td>
-								<td >
-									<span t-field="o.cce_tipooperacion" />
-								</td>
-								<td>
 									<strong>Clave de pedimento</strong>
 								</td>
 								<td >
 									<span t-field="o.cce_clavedepedimento" />
 								</td>
-							</tr>
-							<tr>
 								<td>
 									<strong>Certificado origen</strong>
 								</td>
 								<td >
 									<span t-field="o.cce_certificadoorigen" />
 								</td>
+							</tr>
+							<tr>
 								<td>
 									<strong>Número de exportador confiable </strong>
 								</td>
 								<td >
 									<span t-field="o.cce_numeroexportadorconfiable" />
 								</td>
-							</tr>
-							<tr>
-							   <td>
+								<td>
 									<strong>Incoterm</strong>
 								</td>
 								<td >
 									<span t-field="o.cce_incoterm" />
-								</td>
-								<td>
-									<strong>Subdivisión</strong>
-								</td>
-								<td >
-									<span t-field="o.cce_subdivision" />
 								</td>
 							</tr>
 							<tr>
